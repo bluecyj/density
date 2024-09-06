@@ -1,0 +1,368 @@
+<!DOCTYPE html><html lang="zh-TW"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com; media-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org; frame-src 'self' https://www.youtube.com; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食鹽水(含量筒)質量與體積的關係</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            width: 95%;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .input-section, .graph-settings {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+        .color-box {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .input-group {
+            margin-right: 20px;
+        }
+        label {
+            display: inline-block;
+            width: 120px;
+        }
+        input, select {
+            width: 100px;
+        }
+        button {
+            margin-top: 10px;
+        }
+        .button-row {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .button-row button {
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>食鹽水(含量筒)質量與體積的關係</h1>
+        
+        <div class="graph-settings">
+            <h2>圖表設置</h2>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="massUnit">質量單位長 (g)：</label>
+                    <input type="number" id="massUnit" value="10" min="1" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="massMax">質量最大值 (g)：</label>
+                    <input type="number" id="massMax" value="100" min="1" step="1">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="volumeUnit">體積單位長 (cm³)：</label>
+                    <input type="number" id="volumeUnit" value="10" min="1" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="volumeMax">體積最大值 (cm³)：</label>
+                    <input type="number" id="volumeMax" value="100" min="1" step="1">
+                </div>
+            </div>
+            <button onclick="updateGraph()">更新圖表</button>
+        </div>
+
+        <div class="input-section">
+            <h2>輸入數據</h2>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="materialSelect">選擇物質：</label>
+                    <select id="materialSelect">
+                        <option value="物質1">物質1</option>
+                        <option value="物質2">物質2</option>
+                        <option value="物質3">物質3</option>
+                        <option value="物質4">物質4</option>
+                        <option value="物質5">物質5</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="mass">質量 (g)：</label>
+                    <input type="number" id="mass" step="0.1" required="">
+                </div>
+                <div class="input-group">
+                    <label for="volume">體積 (cm³)：</label>
+                    <input type="number" id="volume" step="0.1" required="">
+                </div>
+            </div>
+            <button onclick="addData()">添加數據</button>
+        </div>
+
+        <div id="dataTables"></div>
+
+        <canvas id="graph" width="800" height="600"></canvas>
+
+        <div class="button-row">
+            <button onclick="connectPoints()">將點連成一條線</button>
+            <button onclick="drawExtendedLine()">畫延長線</button>
+            <button onclick="removeLines()">刪除線</button>
+        </div>
+    </div>
+
+    <script>
+        const colors = ['red', 'blue', 'green', 'orange', 'purple'];
+        let data = {};
+        let lines = {};
+        let extendedLines = {};
+
+        function addData() {
+            const material = document.getElementById('materialSelect').value;
+            const mass = parseFloat(document.getElementById('mass').value);
+            const volume = parseFloat(document.getElementById('volume').value);
+            const massMax = parseFloat(document.getElementById('massMax').value);
+            const volumeMax = parseFloat(document.getElementById('volumeMax').value);
+
+            if (!isNaN(mass) && !isNaN(volume)) {
+                if (mass > massMax || volume > volumeMax) {
+                    alert('你輸入的質量或體積超過設定範圍，請檢查後重新輸入');
+                    return;
+                }
+
+                if (!data[material]) {
+                    data[material] = [];
+                }
+                data[material].push({ mass, volume });
+                updateTables();
+                updateGraph();
+                clearInputs();
+            } else {
+                alert('請輸入有效的數據！');
+            }
+        }
+
+        function clearInputs() {
+            document.getElementById('mass').value = '';
+            document.getElementById('volume').value = '';
+        }
+
+        function updateTables() {
+            const tablesContainer = document.getElementById('dataTables');
+            tablesContainer.innerHTML = '';
+
+            Object.keys(data).forEach((material, index) => {
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th colspan="3">${material} <span class="color-box" style="background-color: ${colors[index]};"></span></th>
+                        </tr>
+                        <tr>
+                            <th>質量 (g)</th>
+                            <th>體積 (cm³)</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data[material].map((item, itemIndex) => `
+                            <tr>
+                                <td>${item.mass}</td>
+                                <td>${item.volume}</td>
+                                <td><button onclick="removeData('${material}', ${itemIndex})">刪除</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+                tablesContainer.appendChild(table);
+            });
+        }
+
+        function removeData(material, index) {
+            data[material].splice(index, 1);
+            if (data[material].length === 0) {
+                delete data[material];
+            }
+            updateTables();
+            updateGraph();
+        }
+
+        function updateGraph() {
+            const canvas = document.getElementById('graph');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 50;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const massUnit = parseInt(document.getElementById('massUnit').value);
+            const massMax = parseInt(document.getElementById('massMax').value);
+            const volumeUnit = parseInt(document.getElementById('volumeUnit').value);
+            const volumeMax = parseInt(document.getElementById('volumeMax').value);
+
+            const xScale = (width - 2 * padding) / volumeMax;
+            const yScale = (height - 2 * padding) / massMax;
+
+            // Draw grid
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= volumeMax; x += volumeUnit) {
+                ctx.beginPath();
+                ctx.moveTo(padding + x * xScale, padding);
+                ctx.lineTo(padding + x * xScale, height - padding);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= massMax; y += massUnit) {
+                ctx.beginPath();
+                ctx.moveTo(padding, height - padding - y * yScale);
+                ctx.lineTo(width - padding, height - padding - y * yScale);
+                ctx.stroke();
+            }
+
+            // Draw axes
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+
+            // Draw labels
+            ctx.fillStyle = '#000';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let y = 0; y <= massMax; y += massUnit) {
+                ctx.fillText(y.toString(), padding - 5, height - padding - y * yScale);
+            }
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            for (let x = 0; x <= volumeMax; x += volumeUnit) {
+                ctx.fillText(x.toString(), padding + x * xScale, height - padding + 5);
+            }
+
+            // Draw axis labels
+            ctx.save();
+            ctx.translate(10, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('食鹽水(含量筒)質量 (g)', 0, 0);
+            ctx.restore();
+
+            ctx.fillText('體積 (cm³)', width / 2, height - 10);
+
+            // Plot data points and lines
+            Object.keys(data).forEach((material, index) => {
+                ctx.fillStyle = colors[index];
+                ctx.strokeStyle = colors[index];
+
+                // Draw points
+                data[material].forEach(item => {
+                    ctx.beginPath();
+                    ctx.arc(padding + item.volume * xScale, height - padding - item.mass * yScale, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+
+                // Draw lines
+                if (lines[material]) {
+                    ctx.beginPath();
+                    ctx.moveTo(padding + lines[material][0].x * xScale, height - padding - lines[material][0].y * yScale);
+                    ctx.lineTo(padding + lines[material][1].x * xScale, height - padding - lines[material][1].y * yScale);
+                    ctx.stroke();
+                }
+
+                // Draw extended lines
+                if (extendedLines[material]) {
+                    ctx.setLineDash([5, 5]);
+                    ctx.beginPath();
+                    ctx.moveTo(padding, height - padding - extendedLines[material].b * yScale);
+                    ctx.lineTo(padding + volumeMax * xScale, height - padding - (extendedLines[material].m * volumeMax + extendedLines[material].b) * yScale);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            });
+        }
+
+        function connectPoints() {
+            Object.keys(data).forEach((material, index) => {
+                if (data[material].length >= 2) {
+                    const sortedPoints = data[material].sort((a, b) => a.volume - b.volume);
+                    lines[material] = [
+                        { x: sortedPoints[0].volume, y: sortedPoints[0].mass },
+                        { x: sortedPoints[sortedPoints.length - 1].volume, y: sortedPoints[sortedPoints.length - 1].mass }
+                    ];
+                }
+            });
+            updateGraph();
+        }
+
+        function drawExtendedLine() {
+            Object.keys(data).forEach((material, index) => {
+                if (data[material].length >= 2) {
+                    const sortedPoints = data[material].sort((a, b) => a.volume - b.volume);
+                    const x1 = sortedPoints[0].volume;
+                    const y1 = sortedPoints[0].mass;
+                    const x2 = sortedPoints[sortedPoints.length - 1].volume;
+                    const y2 = sortedPoints[sortedPoints.length - 1].mass;
+
+                    const m = (y2 - y1) / (x2 - x1);
+                    const b = y1 - m * x1;
+
+                    extendedLines[material] = { m, b };
+                }
+            });
+            updateGraph();
+        }
+
+        function removeLines() {
+            lines = {};
+            extendedLines = {};
+            updateGraph();
+        }
+
+        updateGraph();
+    </script>
+
+
+</body></html>
