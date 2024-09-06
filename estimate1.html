@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang="zh-TW"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com; media-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org; frame-src 'self' https://www.youtube.com; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com; media-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org; frame-src 'self' https://www.youtube.com; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: white;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .description {
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        .container {
+            position: relative;
+            width: 600px;
+            height: 300px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        .pencil {
+            position: absolute;
+            width: 365px;
+            height: 10px;
+            background-color: #FFA500;
+            cursor: move;
+            z-index: 1;
+        }
+        .pencil-tip {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #333;
+        }
+        .pencil-label {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+        }
+        .green-pencil {
+            position: absolute;
+            width: 200px;
+            height: 10px;
+            background-color: #90EE90;
+            cursor: move;
+            border: 1px solid black;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+        .green-pencil-tip {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 10px solid #333;
+        }
+        .green-pencil-label {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+        }
+        .red-line {
+            position: absolute;
+            top: 0;
+            width: 1px;
+            height: 200px;
+            border-left: 2px dashed red;
+            cursor: move;
+            z-index: 2;
+        }
+        .black-line {
+            position: absolute;
+            top: 0;
+            width: 1px;
+            height: 200px;
+            border-left: 2px dashed black;
+            cursor: move;
+            z-index: 2;
+        }
+        .eraser {
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            background-color: lightblue;
+            cursor: move;
+            border: 2px solid black;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+        .eraser-label {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="button-container">
+        <button id="showErasers">顯示橡皮擦</button>
+        <button id="hideErasers">隱藏橡皮擦</button>
+        <button id="showGreenPencils">顯示綠色鉛筆</button>
+        <button id="hideGreenPencils">隱藏綠色鉛筆</button>
+    </div>
+    <div class="container">
+        <div class="pencil" id="pencil">
+            <div class="pencil-tip"></div>
+            <div class="pencil-label">黃色鉛筆(yellow pencil)</div>
+        </div>
+        <div class="green-pencil" id="greenPencil1">
+            <div class="green-pencil-tip"></div>
+            <div class="green-pencil-label">綠色鉛筆(green pencil)</div>
+        </div>
+        <div class="green-pencil" id="greenPencil2">
+            <div class="green-pencil-tip"></div>
+            <div class="green-pencil-label">綠色鉛筆(green pencil)</div>
+        </div>
+        <div class="red-line" id="redLine"></div>
+        <div class="black-line" id="blackLine"></div>
+        <div class="eraser" id="eraser1">
+            <div class="eraser-label">橡皮擦(eraser)</div>
+        </div>
+        <div class="eraser" id="eraser2">
+            <div class="eraser-label">橡皮擦(eraser)</div>
+        </div>
+        <div class="eraser" id="eraser3">
+            <div class="eraser-label">橡皮擦(eraser)</div>
+        </div>
+        <div class="eraser" id="eraser4">
+            <div class="eraser-label">橡皮擦(eraser)</div>
+        </div>
+    </div>
+
+    <script>
+        const pencil = document.getElementById('pencil');
+        const greenPencil1 = document.getElementById('greenPencil1');
+        const greenPencil2 = document.getElementById('greenPencil2');
+        const redLine = document.getElementById('redLine');
+        const blackLine = document.getElementById('blackLine');
+        const container = document.querySelector('.container');
+        const erasers = [
+            document.getElementById('eraser1'),
+            document.getElementById('eraser2'),
+            document.getElementById('eraser3'),
+            document.getElementById('eraser4')
+        ];
+        const greenPencils = [greenPencil1, greenPencil2];
+
+        // 設置初始位置
+        pencil.style.left = '50px';
+        pencil.style.top = '200px';
+        greenPencil1.style.left = '50px';
+        greenPencil1.style.top = '150px';
+        greenPencil2.style.left = '300px';
+        greenPencil2.style.top = '150px';
+        redLine.style.left = '250px';
+        blackLine.style.left = '100px';
+
+        // 設置橡皮擦初始位置
+        erasers[0].style.left = '50px';
+        erasers[0].style.top = '50px';
+        erasers[1].style.left = '200px';
+        erasers[1].style.top = '50px';
+        erasers[2].style.left = '350px';
+        erasers[2].style.top = '50px';
+        erasers[3].style.left = '50px';
+        erasers[3].style.top = '250px';
+
+        // 移動功能
+        function dragElement(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            element.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                let newTop = element.offsetTop - pos2;
+                let newLeft = element.offsetLeft - pos1;
+                
+                // 限制元素在container內
+                newTop = Math.max(0, Math.min(newTop, container.offsetHeight - element.offsetHeight));
+                newLeft = Math.max(0, Math.min(newLeft, container.offsetWidth - element.offsetWidth));
+                
+                element.style.top = newTop + "px";
+                element.style.left = newLeft + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        dragElement(pencil);
+        dragElement(greenPencil1);
+        dragElement(greenPencil2);
+        dragElement(redLine);
+        dragElement(blackLine);
+        erasers.forEach(eraser => dragElement(eraser));
+
+        // 新增按鈕功能
+        document.getElementById('showErasers').addEventListener('click', () => {
+            erasers.forEach(eraser => eraser.style.display = 'block');
+        });
+
+        document.getElementById('hideErasers').addEventListener('click', () => {
+            erasers.forEach(eraser => eraser.style.display = 'none');
+        });
+
+        document.getElementById('showGreenPencils').addEventListener('click', () => {
+            greenPencils.forEach(pencil => pencil.style.display = 'block');
+        });
+
+        document.getElementById('hideGreenPencils').addEventListener('click', () => {
+            greenPencils.forEach(pencil => pencil.style.display = 'none');
+        });
+    </script>
+
+
+</body></html>
