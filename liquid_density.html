@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="zh-TW"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量筒模擬器 (0-50mL)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .experiment-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .screen {
+            width: 200px;
+            height: 100px;
+            background-color: #000;
+            color: #0f0;
+            border: 2px solid #333;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            margin-bottom: 10px;
+        }
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 150px;
+            margin-left: 20px;
+        }
+        .screen-label {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .screen-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .cylinder-container {
+            display: flex;
+            align-items: flex-end;
+        }
+        .cylinder {
+            width: 100px;
+            height: 300px;
+            background: transparent;
+            border: 2px solid black;
+            position: relative;
+            overflow: hidden;
+        }
+        .water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(173, 216, 230, 0.5);
+            transition: height 0.3s;
+        }
+        .scale {
+            position: absolute;
+            right: 0;
+            height: 100%;
+            width: 20px;
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: space-between;
+        }
+        .scale-mark {
+            width: 100%;
+            height: 1px;
+            background-color: black;
+        }
+        .small-marks {
+            position: absolute;
+            right: 0;
+            height: 100%;
+            width: 20px;
+        }
+        .small-mark {
+            height: 1px;
+            background-color: black;
+            position: absolute;
+        }
+        .scale-numbers {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 300px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        .scale-image {
+            width: 384px;
+            margin-top: -50px;
+        }
+        .volume-input {
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .volume-input input {
+            width: 150px;
+            padding: 5px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="experiment-container">
+        <div class="top-controls">
+            <div>
+                <div class="screen">
+                    <div class="screen-label">目前液體體積</div>
+                    <div class="screen-value" id="volume-value">10.0 mL</div>
+                </div>
+                <div class="screen">
+                    <div class="screen-label">目前電子秤讀數</div>
+                    <div class="screen-value" id="scale-value">73.0 g</div>
+                </div>
+            </div>
+            <div class="buttons">
+                <div class="volume-input">
+                    <input type="number" id="volume-input" min="0" max="50" step="0.1" placeholder="輸入液體體積(mL)">
+                    <button onclick="setVolume()">設定體積</button>
+                </div>
+                <button onclick="addWater()">增加液體體積</button>
+                <button onclick="removeWater()">減少液體體積</button>
+            </div>
+        </div>
+        <div class="container">
+            <div class="cylinder-container">
+                <div class="cylinder">
+                    <div class="water"></div>
+                    <div class="scale">
+                        <div class="scale-mark"></div>
+                        <div class="scale-mark"></div>
+                        <div class="scale-mark"></div>
+                        <div class="scale-mark"></div>
+                        <div class="scale-mark"></div>
+                        <div class="scale-mark"></div>
+                    </div>
+                    <div class="small-marks"></div>
+                </div>
+                <div class="scale-numbers">
+                    <div>50 mL</div>
+                    <div>40</div>
+                    <div>30</div>
+                    <div>20</div>
+                    <div>10</div>
+                    <div>0</div>
+                </div>
+            </div>
+            <img src="https://bluecyj.github.io/density/scale2.png" alt="電子秤" class="scale-image">
+        </div>
+    </div>
+
+    <script>
+        const water = document.querySelector('.water');
+        const volumeValue = document.getElementById('volume-value');
+        const scaleValue = document.getElementById('scale-value');
+        const smallMarks = document.querySelector('.small-marks');
+        const volumeInput = document.getElementById('volume-input');
+
+        // 添加小刻度
+        for (let i = 1; i < 50; i++) {
+            const smallMark = document.createElement('div');
+            smallMark.className = 'small-mark';
+            smallMark.style.bottom = `${i * 2}%`;
+            if (i % 10 === 0) {
+                smallMark.style.width = '100%';
+            } else if (i % 5 === 0) {
+                smallMark.style.width = '75%';
+            } else {
+                smallMark.style.width = '50%';
+            }
+            smallMarks.appendChild(smallMark);
+        }
+
+        let currentVolume = 10;
+        const cylinderMass = 61; // 量筒質量，單位：克
+        const liquidDensity = 1.2; // 液體密度，單位：g/mL
+
+        function updateWaterLevel() {
+            const waterHeight = (currentVolume / 50) * 100;
+            water.style.height = `${waterHeight}%`;
+            volumeValue.textContent = `${currentVolume.toFixed(1)} mL`;
+            
+            const liquidMass = currentVolume * liquidDensity;
+            const totalMass = cylinderMass + liquidMass;
+            scaleValue.textContent = `${totalMass.toFixed(1)} g`;
+        }
+
+        function addWater() {
+            currentVolume = Math.min(50, currentVolume + 1);
+            updateWaterLevel();
+        }
+
+        function removeWater() {
+            currentVolume = Math.max(0, currentVolume - 1);
+            updateWaterLevel();
+        }
+
+        function setVolume() {
+            const inputVolume = parseFloat(volumeInput.value);
+            if (!isNaN(inputVolume) && inputVolume >= 0 && inputVolume <= 50) {
+                currentVolume = inputVolume;
+                updateWaterLevel();
+            } else {
+                alert("請輸入0到50之間的有效數字。");
+            }
+            volumeInput.value = ""; // 清空輸入框
+        }
+
+        updateWaterLevel();
+    </script>
+
+
+</body></html>
