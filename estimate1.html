@@ -1,8 +1,10 @@
-<!DOCTYPE html><html lang="zh-TW"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com; media-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org; frame-src 'self' https://www.youtube.com; upgrade-insecure-requests; block-all-mixed-content;">
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com; media-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org; frame-src 'self' https://www.youtube.com; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <title>物體長度測量與估計值</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -60,7 +62,7 @@
         }
         .green-pencil {
             position: absolute;
-            width: 200px;
+            width: 240px; /* 修改: 從 200px 增加到 240px (1.2倍) */
             height: 10px;
             background-color: #90EE90;
             cursor: move;
@@ -136,7 +138,6 @@
 </head>
 <body>
 
-
     <div class="button-container">
         <button id="showErasers">顯示橡皮擦</button>
         <button id="hideErasers">隱藏橡皮擦</button>
@@ -198,14 +199,15 @@
         blackLine.style.left = '100px';
 
         // 設置橡皮擦初始位置
-        erasers[0].style.left = '50px';
-        erasers[0].style.top = '50px';
-        erasers[1].style.left = '200px';
-        erasers[1].style.top = '50px';
-        erasers[2].style.left = '350px';
-        erasers[2].style.top = '50px';
-        erasers[3].style.left = '50px';
-        erasers[3].style.top = '250px';
+        const eraserWidth = 100;
+        const eraserSpacing = 3;
+        const startLeft = 50;
+        const eraserTop = 50;
+
+        erasers.forEach((eraser, index) => {
+            eraser.style.left = `${startLeft + index * (eraserWidth + eraserSpacing)}px`;
+            eraser.style.top = `${eraserTop}px`;
+        });
 
         // 移動功能
         function dragElement(element) {
@@ -268,6 +270,5 @@
             greenPencils.forEach(pencil => pencil.style.display = 'none');
         });
     </script>
-
-
-</body></html>
+</body>
+</html>
