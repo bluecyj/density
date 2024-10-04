@@ -41,6 +41,7 @@
             background-color: #FFA500;
             cursor: move;
             z-index: 1;
+            touch-action: none;
         }
         .pencil-tip {
             position: absolute;
@@ -62,13 +63,14 @@
         }
         .green-pencil {
             position: absolute;
-            width: 240px; /* 修改: 從 200px 增加到 240px (1.2倍) */
+            width: 240px;
             height: 10px;
             background-color: #90EE90;
             cursor: move;
             border: 1px solid black;
             box-sizing: border-box;
             z-index: 1;
+            touch-action: none;
         }
         .green-pencil-tip {
             position: absolute;
@@ -96,6 +98,7 @@
             border-left: 2px dashed red;
             cursor: move;
             z-index: 2;
+            touch-action: none;
         }
         .black-line {
             position: absolute;
@@ -105,6 +108,7 @@
             border-left: 2px dashed black;
             cursor: move;
             z-index: 2;
+            touch-action: none;
         }
         .eraser {
             position: absolute;
@@ -115,6 +119,7 @@
             border: 2px solid black;
             box-sizing: border-box;
             z-index: 1;
+            touch-action: none;
         }
         .eraser-label {
             position: absolute;
@@ -137,7 +142,10 @@
     </style>
 </head>
 <body>
-
+    <h1>物體長度測量與估計值</h1>
+    <div class="description">
+        你可以移動所有的物體，黑色虛線與紅色虛線可以幫助你在量測長度時作為對齊的工具使用。我們的目標是想知道黃色鉛筆的長度，大約是幾個綠色鉛筆，或大約是幾個橡皮擦，你會如何記錄。
+    </div>
     <div class="button-container">
         <button id="showErasers">顯示橡皮擦</button>
         <button id="hideErasers">隱藏橡皮擦</button>
@@ -213,6 +221,7 @@
         function dragElement(element) {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
             element.onmousedown = dragMouseDown;
+            element.ontouchstart = dragTouchStart;
 
             function dragMouseDown(e) {
                 e.preventDefault();
@@ -222,13 +231,33 @@
                 document.onmousemove = elementDrag;
             }
 
+            function dragTouchStart(e) {
+                e.preventDefault();
+                pos3 = e.touches[0].clientX;
+                pos4 = e.touches[0].clientY;
+                document.ontouchend = closeDragElement;
+                document.ontouchmove = elementTouchDrag;
+            }
+
             function elementDrag(e) {
                 e.preventDefault();
                 pos1 = pos3 - e.clientX;
                 pos2 = pos4 - e.clientY;
                 pos3 = e.clientX;
                 pos4 = e.clientY;
-                
+                updateElementPosition();
+            }
+
+            function elementTouchDrag(e) {
+                e.preventDefault();
+                pos1 = pos3 - e.touches[0].clientX;
+                pos2 = pos4 - e.touches[0].clientY;
+                pos3 = e.touches[0].clientX;
+                pos4 = e.touches[0].clientY;
+                updateElementPosition();
+            }
+
+            function updateElementPosition() {
                 let newTop = element.offsetTop - pos2;
                 let newLeft = element.offsetLeft - pos1;
                 
@@ -243,6 +272,8 @@
             function closeDragElement() {
                 document.onmouseup = null;
                 document.onmousemove = null;
+                document.ontouchend = null;
+                document.ontouchmove = null;
             }
         }
 

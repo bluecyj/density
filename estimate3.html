@@ -1,7 +1,9 @@
-<!DOCTYPE html><html lang="zh-TW"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com; media-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org; frame-src 'self' https://www.youtube.com; upgrade-insecure-requests; block-all-mixed-content;">
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <title>物體長度測量與估計值</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -29,6 +31,7 @@
             height: 300px;
             background-color: #f9f9f9;
             border: 1px solid #ccc;
+            touch-action: none;
         }
         .ruler {
             position: absolute;
@@ -37,6 +40,7 @@
             background-color: #f9f9f9;
             border: 1px solid #333;
             cursor: move;
+            touch-action: none;
         }
         .ruler-marks {
             position: relative;
@@ -69,6 +73,7 @@
             height: 10px;
             background-color: #FFA500;
             cursor: move;
+            touch-action: none;
         }
         .pencil-tip {
             position: absolute;
@@ -87,11 +92,14 @@
             height: 200px;
             border-left: 2px dashed red;
             cursor: move;
+            touch-action: none;
         }
     </style>
 </head>
 <body>
-
+    <h1>✏️鉛筆長度測量與估計值📏</h1>
+    <div class="description">
+        你可以移動尺📏，也可以移動黃色鉛筆✏️，我們想量測黃色鉛筆的長度。請你將黃色鉛筆最左邊抵住尺0cm的刻度線，移動畫面中的紅色虛線，抵住鉛筆尖端，記錄黃色鉛筆長度是多少公分(cm)。
     </div>
     <div class="container">
         <div class="ruler" id="ruler">
@@ -144,6 +152,7 @@
         function dragElement(element) {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
             element.onmousedown = dragMouseDown;
+            element.ontouchstart = dragTouchStart;
 
             function dragMouseDown(e) {
                 e.preventDefault();
@@ -153,13 +162,33 @@
                 document.onmousemove = elementDrag;
             }
 
+            function dragTouchStart(e) {
+                e.preventDefault();
+                pos3 = e.touches[0].clientX;
+                pos4 = e.touches[0].clientY;
+                document.ontouchend = closeDragElement;
+                document.ontouchmove = elementTouchDrag;
+            }
+
             function elementDrag(e) {
                 e.preventDefault();
                 pos1 = pos3 - e.clientX;
                 pos2 = pos4 - e.clientY;
                 pos3 = e.clientX;
                 pos4 = e.clientY;
-                
+                updateElementPosition();
+            }
+
+            function elementTouchDrag(e) {
+                e.preventDefault();
+                pos1 = pos3 - e.touches[0].clientX;
+                pos2 = pos4 - e.touches[0].clientY;
+                pos3 = e.touches[0].clientX;
+                pos4 = e.touches[0].clientY;
+                updateElementPosition();
+            }
+
+            function updateElementPosition() {
                 let newTop = element.offsetTop - pos2;
                 let newLeft = element.offsetLeft - pos1;
                 
@@ -174,6 +203,8 @@
             function closeDragElement() {
                 document.onmouseup = null;
                 document.onmousemove = null;
+                document.ontouchend = null;
+                document.ontouchmove = null;
             }
         }
 
@@ -181,6 +212,5 @@
         dragElement(pencil);
         dragElement(redLine);
     </script>
-
-
-</body></html>
+</body>
+</html>
