@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>量筒模擬器 (0-50mL)</title>
+    <title>液體的質量與體積</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
-            padding-top: 8em; /* 新增這行，將所有內容往下移動 */
+            padding-top: 2em;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 1em;
         }
         .experiment-container {
             display: flex;
@@ -83,7 +87,7 @@
             bottom: 0;
             width: 100%;
             background-color: rgba(173, 216, 230, 0.5);
-            transition: height 0.3s;
+            transition: height 0.3s, background-color 0.3s;
         }
         .scale {
             position: absolute;
@@ -125,37 +129,56 @@
         .volume-input {
             margin-bottom: 10px;
             display: flex;
-            flex-direction: column;
             align-items: center;
         }
         .volume-input input {
-            width: 150px;
+            width: 75px;
             padding: 5px;
-            margin-bottom: 5px;
+            margin-right: 5px;
             text-align: center;
+        }
+        .liquid-select {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .input-label {
+            margin-right: 10px;
         }
     </style>
 </head>
 <body>
+    <h1>🧂液體的質量與體積🍷</h1>
     <div class="experiment-container">
         <div class="top-controls">
             <div>
                 <div class="screen">
-                    <div class="screen-label">目前液體體積</div>
+                    <div class="screen-label">量筒內液體體積</div>
                     <div class="screen-value" id="volume-value">10.0 mL</div>
                 </div>
                 <div class="screen">
-                    <div class="screen-label">目前電子秤讀數</div>
+                    <div class="screen-label">電子秤讀數</div>
                     <div class="screen-value" id="scale-value">73.0 g</div>
                 </div>
             </div>
             <div class="buttons">
+                <div class="liquid-select">
+                    <label for="liquid-type" class="input-label">選擇液體種類</label>
+                    <select id="liquid-type" onchange="updateLiquidDensity()">
+                        <option value="1">水</option>
+                        <option value="1.2" selected>食鹽水</option>
+                        <option value="1.26">甘油</option>
+                        <option value="0.8">酒精</option>
+                        <option value="13.6">水銀</option>
+                    </select>
+                </div>
                 <div class="volume-input">
-                    <input type="number" id="volume-input" min="0" max="50" step="0.1" placeholder="輸入液體體積(mL)">
+                    <label for="volume-input" class="input-label">輸入液體體積(mL)</label>
+                    <input type="number" id="volume-input" min="0" max="50" step="0.1">
                     <button onclick="setVolume()">設定體積</button>
                 </div>
-                <button onclick="addWater()">增加液體體積</button>
-                <button onclick="removeWater()">減少液體體積</button>
+                <button onclick="addWater()">👆增加液體體積</button>
+                <button onclick="removeWater()">👇減少液體體積</button>
             </div>
         </div>
         <div class="container">
@@ -181,7 +204,7 @@
                     <div>0</div>
                 </div>
             </div>
-            <img src="https://bluecyj.github.io/density/scale2.png" alt="電子秤" class="scale-image">
+            <img src="https://bluecyj.github.io/density/scale3.png" alt="電子秤" class="scale-image">
         </div>
     </div>
 
@@ -191,6 +214,7 @@
         const scaleValue = document.getElementById('scale-value');
         const smallMarks = document.querySelector('.small-marks');
         const volumeInput = document.getElementById('volume-input');
+        const liquidTypeSelect = document.getElementById('liquid-type');
 
         // 添加小刻度
         for (let i = 1; i < 50; i++) {
@@ -209,7 +233,21 @@
 
         let currentVolume = 10;
         const cylinderMass = 61; // 量筒質量，單位：克
-        const liquidDensity = 1.2; // 液體密度，單位：g/mL
+        let liquidDensity = 1.2; // 液體密度，單位：g/mL
+
+        function updateLiquidDensity() {
+            liquidDensity = parseFloat(liquidTypeSelect.value);
+            updateWaterLevel();
+            updateLiquidColor();
+        }
+
+        function updateLiquidColor() {
+            if (liquidTypeSelect.value === "13.6") {
+                water.style.backgroundColor = "rgb(192, 192, 192)"; // 銀色，不透明
+            } else {
+                water.style.backgroundColor = "rgba(173, 216, 230, 0.5)"; // 原來的顏色
+            }
+        }
 
         function updateWaterLevel() {
             const waterHeight = (currentVolume / 50) * 100;
@@ -243,6 +281,7 @@
         }
 
         updateWaterLevel();
+        updateLiquidColor();
     </script>
 </body>
 </html>
