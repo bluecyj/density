@@ -49,7 +49,7 @@
     </style>
 </head>
 <body>
-    <div id="info">拖動金屬塊到電子秤上以顯示質量</div>
+    <div id="info">移動金屬塊到電子秤上以顯示質量</div>
     <img id="scaleImage" src="https://bluecyj.github.io/density/scale3.png" alt="Electronic Scale">
     <div id="weightDisplay">0.0 g</div>
     <div id="scene-container"></div>
@@ -132,19 +132,20 @@
             weightDisplay = document.getElementById('weightDisplay');
             scaleImage = document.getElementById('scaleImage');
 
-            window.addEventListener('mousedown', onMouseDown, false);
-            window.addEventListener('mousemove', onMouseMove, false);
-            window.addEventListener('mouseup', onMouseUp, false);
+            window.addEventListener('mousedown', onPointerDown, false);
+            window.addEventListener('mousemove', onPointerMove, false);
+            window.addEventListener('mouseup', onPointerUp, false);
+            window.addEventListener('touchstart', onPointerDown, false);
+            window.addEventListener('touchmove', onPointerMove, false);
+            window.addEventListener('touchend', onPointerUp, false);
             window.addEventListener('resize', onWindowResize, false);
         }
 
-        function onMouseDown(event) {
-            const mouse = new THREE.Vector2();
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
+        function onPointerDown(event) {
+            event.preventDefault();
+            const pointer = getPointerPosition(event);
             const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, camera);
+            raycaster.setFromCamera(pointer, camera);
 
             const intersects = raycaster.intersectObjects(objects.map(obj => obj.mesh));
 
@@ -156,14 +157,12 @@
             }
         }
 
-        function onMouseMove(event) {
+        function onPointerMove(event) {
+            event.preventDefault();
             if (isDragging) {
-                const mouse = new THREE.Vector2();
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
+                const pointer = getPointerPosition(event);
                 const raycaster = new THREE.Raycaster();
-                raycaster.setFromCamera(mouse, camera);
+                raycaster.setFromCamera(pointer, camera);
 
                 const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
                 const intersectionPoint = new THREE.Vector3();
@@ -175,9 +174,22 @@
             }
         }
 
-        function onMouseUp() {
+        function onPointerUp(event) {
+            event.preventDefault();
             isDragging = false;
             draggedObject = null;
+        }
+
+        function getPointerPosition(event) {
+            const pointer = new THREE.Vector2();
+            if (event.touches && event.touches.length > 0) {
+                pointer.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+                pointer.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+            } else {
+                pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+                pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            }
+            return pointer;
         }
 
         function checkScaleIntersection() {
