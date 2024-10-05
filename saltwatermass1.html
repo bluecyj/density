@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="zh-TW"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com; media-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org; frame-src 'self' https://www.youtube.com; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>食鹽水(含量筒)質量與體積的關係</title>
+    <title>液體(含量筒)質量與體積的關係</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -87,7 +87,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>食鹽水(含量筒)質量與體積的關係</h1>
+        <h1>🧂液體(含量筒)質量與體積的關係🍷</h1>
         
         <div class="graph-settings">
             <h2>圖表設置</h2>
@@ -103,15 +103,15 @@
             </div>
             <div class="input-row">
                 <div class="input-group">
-                    <label for="volumeUnit">體積單位長 (cm³)：</label>
+                    <label for="volumeUnit">體積單位長 (mL)：</label>
                     <input type="number" id="volumeUnit" value="10" min="1" step="1">
                 </div>
                 <div class="input-group">
-                    <label for="volumeMax">體積最大值 (cm³)：</label>
+                    <label for="volumeMax">體積最大值 (mL)：</label>
                     <input type="number" id="volumeMax" value="100" min="1" step="1">
                 </div>
             </div>
-            <button onclick="updateGraph()">更新圖表</button>
+            <button onclick="updateGraph()">⚙️更新圖表</button>
         </div>
 
         <div class="input-section">
@@ -121,10 +121,10 @@
                     <label for="materialSelect">液體種類：</label>
                     <select id="materialSelect">
                         <option value="食鹽水">食鹽水</option>
-                        <option value="其他液體1">其他液體1</option>
-                        <option value="其他液體2">其他液體2</option>
-                        <option value="其他液體3">其他液體3</option>
-                        <option value="其他液體4">其他液體4</option>
+                        <option value="水">水</option>
+                        <option value="甘油">甘油</option>
+                        <option value="酒精">酒精</option>
+                        <option value="水銀">水銀</option>
                     </select>
                 </div>
                 <div class="input-group">
@@ -132,11 +132,11 @@
                     <input type="number" id="mass" step="0.1" required="">
                 </div>
                 <div class="input-group">
-                    <label for="volume">體積 (cm³)：</label>
+                    <label for="volume">體積 (mL)：</label>
                     <input type="number" id="volume" step="0.1" required="">
                 </div>
             </div>
-            <button onclick="addData()">添加數據</button>
+            <button onclick="addData()">🔘添加數據</button>
         </div>
 
         <div id="dataTables"></div>
@@ -199,7 +199,7 @@
                         </tr>
                         <tr>
                             <th>質量 (g)</th>
-                            <th>體積 (cm³)</th>
+                            <th>體積 (mL)</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -287,10 +287,10 @@
             ctx.translate(10, height / 2);
             ctx.rotate(-Math.PI / 2);
             ctx.textAlign = 'center';
-            ctx.fillText('食鹽水(含量筒)質量 (g)', 0, 0);
+            ctx.fillText('液體(含量筒)質量 (g)', 0, 0);
             ctx.restore();
 
-            ctx.fillText('體積 (cm³)', width / 2, height - 10);
+            ctx.fillText('體積 (mL)', width / 2, height - 10);
 
             // Plot data points and lines
             Object.keys(data).forEach((material, index) => {

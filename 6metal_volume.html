@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物體的體積(排水法)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .experiment-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+        .container {
+            display: flex;
+            align-items: flex-end;
+        }
+        .cylinder {
+            width: 86.4px; /* 原來的 72px * 1.2 */
+            height: 300px;
+            background: transparent;
+            border: 2px solid black;
+            position: relative;
+            overflow: hidden;
+        }
+        .water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(173, 216, 230, 0.5);
+            transition: height 0.3s;
+        }
+        .scale {
+            position: absolute;
+            right: 0;
+            height: 100%;
+            width: 17.28px; /* 原來的 14.4px * 1.2 */
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: space-between;
+        }
+        .scale-mark {
+            width: 100%;
+            height: 1px;
+            background-color: black;
+        }
+        .small-marks {
+            position: absolute;
+            right: 0;
+            height: 100%;
+            width: 8.64px; /* 原來的 7.2px * 1.2 */
+        }
+        .small-mark {
+            width: 100%;
+            height: 1px;
+            background-color: black;
+            position: absolute;
+        }
+        .scale-numbers {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 300px;
+            margin-left: 8.64px; /* 原來的 7.2px * 1.2 */
+            font-size: 14px;
+            position: relative;
+        }
+        .scale-numbers div {
+            position: relative;
+        }
+        .scale-numbers div:first-child {
+            top: -7px;
+        }
+        .scale-numbers div:nth-child(2) {
+            top: -5px;
+        }
+        .screen {
+            width: 300px;
+            height: 100px;
+            background-color: #000;
+            color: #0f0;
+            border: 2px solid #333;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .screen-label {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .screen-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #scene-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+        #metal-select {
+            margin-left: 10px;
+            font-size: 16px;
+            padding: 5px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .screen-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="experiment-container">
+        <h1 class="page-title">🧱金屬塊的體積(排水法)🧪</h1>
+        <div class="screen-container">
+            <div class="screen">
+                <div class="screen-label">量筒中水的體積</div>
+                <div class="screen-value">10.0 mL</div>
+            </div>
+            <select id="metal-select">
+                <option value="">請選擇放入量筒的金屬塊</option>
+                <option value="0">金屬塊1</option>
+                <option value="1">金屬塊2</option>
+                <option value="2">金屬塊3</option>
+                <option value="3">金屬塊4</option>
+                <option value="4">金屬塊5</option>
+                <option value="5">金屬塊6</option>
+            </select>
+        </div>
+        <div class="container">
+            <div class="cylinder">
+                <div class="water"></div>
+                <div class="scale">
+                    <div class="scale-mark"></div>
+                    <div class="scale-mark"></div>
+                    <div class="scale-mark"></div>
+                    <div class="scale-mark"></div>
+                    <div class="scale-mark"></div>
+                </div>
+                <div class="small-marks"></div>
+            </div>
+            <div class="scale-numbers">
+                <div>20 mL</div>
+                <div>15</div>
+                <div>10</div>
+                <div>5</div>
+                <div>0</div>
+            </div>
+        </div>
+    </div>
+    <div id="scene-container"></div>
+
+    <script>
+        const water = document.querySelector('.water');
+        const screenLabel = document.querySelector('.screen-label');
+        const screenValue = document.querySelector('.screen-value');
+        const smallMarks = document.querySelector('.small-marks');
+        const cylinder = document.querySelector('.cylinder');
+        const metalSelect = document.getElementById('metal-select');
+
+        // 添加小刻度
+        for (let i = 1; i < 20; i++) {
+            if (i % 5 !== 0) {
+                const smallMark = document.createElement('div');
+                smallMark.className = 'small-mark';
+                smallMark.style.bottom = `${i * 5}%`;
+                smallMarks.appendChild(smallMark);
+            }
+        }
+
+        let currentVolume = 10;
+        const objectProperties = {
+            0: { volume: 4.1, mass: 12.2 },
+            1: { volume: 5.9, mass: 17.8 },
+            2: { volume: 8, mass: 23.8 },
+            3: { volume: 4.1, mass: 36.7 },
+            4: { volume: 6, mass: 54.1 },
+            5: { volume: 7.9, mass: 71.2 }
+        };
+        let objectsInCylinder = [];
+
+        updateWaterLevel();
+
+        function updateWaterLevel() {
+            const totalVolume = currentVolume + objectsInCylinder.reduce((sum, obj) => sum + objectProperties[obj].volume, 0);
+            const waterHeight = (totalVolume / 20) * 100;
+            water.style.height = `${waterHeight}%`;
+            
+            if (objectsInCylinder.length > 0) {
+                const lastObject = objectsInCylinder[objectsInCylinder.length - 1];
+                screenLabel.textContent = `金屬塊${parseInt(lastObject) + 1}與量筒中水的總體積`;
+            } else {
+                screenLabel.textContent = "量筒中水的體積";
+            }
+            
+            screenValue.textContent = `${totalVolume.toFixed(1)} mL`;
+        }
+
+        // Three.js 場景設置
+        let scene, camera, renderer;
+        let objects = [];
+        let raycaster, mouse;
+        let lastClickedObject = null;
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            document.getElementById('scene-container').appendChild(renderer.domElement);
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+
+            camera.position.z = 20;
+
+            const objectsParams = [
+                { type: 'cube', size: 1.6, position: new THREE.Vector3(-15, 0, 0), weight: 12.2, color: 0xA0A0A0 },
+                { type: 'cylinder', radius: 1, height: 2, position: new THREE.Vector3(-12, 0, 0), weight: 17.8, color: 0xA0A0A0 },
+                { type: 'cuboid', width: 2, height: 2, depth: 2, position: new THREE.Vector3(-9, 0, 0), weight: 23.8, color: 0xA0A0A0 },
+                { type: 'cube', size: 1.6, position: new THREE.Vector3(-15, -5, 0), weight: 36.7, color: 0xD2B48C },
+                { type: 'cylinder', radius: 1, height: 2, position: new THREE.Vector3(-12, -5, 0), weight: 54.1, color: 0xD2B48C },
+                { type: 'cuboid', width: 2, height: 2, depth: 2, position: new THREE.Vector3(-9, -5, 0), weight: 71.2, color: 0xD2B48C }
+            ];
+
+            objectsParams.forEach((params, index) => {
+                let geometry, material, mesh;
+
+                switch (params.type) {
+                    case 'cube':
+                        geometry = new THREE.BoxGeometry(params.size, params.size, params.size);
+                        break;
+                    case 'cylinder':
+                        geometry = new THREE.CylinderGeometry(params.radius, params.radius, params.height, 32);
+                        break;
+                    case 'cuboid':
+                        geometry = new THREE.BoxGeometry(params.width, params.height, params.depth);
+                        break;
+                }
+
+                material = new THREE.MeshPhongMaterial({ color: params.color });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.copy(params.position);
+                scene.add(mesh);
+                objects.push({ mesh: mesh, weight: params.weight });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = 256;
+                canvas.height = 256;
+                context.font = 'Bold 200px Arial';
+                context.fillStyle = 'black';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                context.fillText((index + 1).toString(), 128, 128);
+                
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+                const sprite = new THREE.Sprite(spriteMaterial);
+                sprite.scale.set(2, 2, 1);
+                sprite.position.set(0, -2, 0);
+                mesh.add(sprite);
+            });
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            objects.forEach(obj => {
+                obj.mesh.rotation.x += 0.01;
+                obj.mesh.rotation.y += 0.01;
+            });
+
+            objects.forEach(obj => {
+                obj.mesh.children[0].rotation.copy(camera.rotation);
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+        animate();
+
+        metalSelect.addEventListener('change', function(event) {
+            const selectedIndex = parseInt(event.target.value);
+            
+            if (!isNaN(selectedIndex)) {
+                if (lastClickedObject) {
+                    lastClickedObject.visible = true;
+                    const lastIndex = objects.findIndex(obj => obj.mesh === lastClickedObject);
+                    const index = objectsInCylinder.indexOf(lastIndex);
+                    if (index > -1) {
+                        objectsInCylinder.splice(index, 1);
+                    }
+                }
+
+                const selectedObject = objects[selectedIndex].mesh;
+                selectedObject.visible = false;
+                
+                if (!objectsInCylinder.includes(selectedIndex)) {
+                    objectsInCylinder.push(selectedIndex);
+                }
+                
+                lastClickedObject = selectedObject;
+                updateWaterLevel();
+            } else {
+                if (lastClickedObject) {
+                    lastClickedObject.visible = true;
+                    const lastIndex = objects.findIndex(obj => obj.mesh === lastClickedObject);
+                    const index = objectsInCylinder.indexOf(lastIndex);
+                    if (index > -1) {
+                        objectsInCylinder.splice(index, 1);
+                    }
+                    lastClickedObject = null;
+                    updateWaterLevel();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
