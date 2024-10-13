@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物體密度計算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        .description {
+            font-size: 16px;
+            font-family: "Microsoft JhengHei", sans-serif;
+            margin-bottom: 20px;
+        }
+        .highlight {
+            font-weight: bold;
+        }
+        .input-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        input[type="number"] {
+            width: 100px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .footer {
+            text-align: center;
+            font-family: "Microsoft JhengHei", sans-serif;
+            font-size: 14px;
+            color: black;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🧮物體密度計算器</h1>
+    <img src="https://bluecyj.github.io/density/density_definition.png" alt="密度定義" style="width: 13%; height: auto; margin-bottom: 20px;">
+    <div class="description">
+        (1)這是一個可以協助你<span class="highlight">計算物體密度</span>的計算器，<span class="highlight">密度</span>在科學上的定義為「<span class="highlight">密度</span>=<span class="highlight">質量</span>/<span class="highlight">體積</span>」<br>
+        (2)你需要輸入物體的<span class="highlight">質量</span>與物體的<span class="highlight">體積</span>，我會幫你計算出物體的<span class="highlight">密度</span>(請注意<span class="highlight">質量</span>與<span class="highlight">體積</span>的<span class="highlight">單位</span>)。<br>
+        (3)經過這樣的練習✍，未來希望你可以自己利用「<span class="highlight">質量</span>/<span class="highlight">體積</span>」計算出「<span class="highlight">密度</span>」。
+    </div>
+
+    <div class="input-container">
+        <label for="mass">物體質量 (g):</label>
+        <input type="number" id="mass" step="0.1" required>
+        <label for="volume">物體體積 (cm³ or mL):</label>
+        <input type="number" id="volume" step="0.1" required>
+        <button id="calculate">計算密度</button>
+    </div>
+
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th>次數</th>
+                <th>物體質量 (g)</th>
+                <th>物體體積 (cm³ or mL)</th>
+                <th>密度 (g/cm³ or g/mL)</th>
+                <th>♻操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 計算結果將顯示在這裡 -->
+        </tbody>
+    </table>
+    <div class="footer">
+        <p>本網頁由新北市立中正國中江逸傑老師製作</p>
+        <p>ccjhsntpc@gmail.com</p>
+    </div>
+
+    <script>
+        let count = 0;
+
+        document.getElementById('calculate').addEventListener('click', function() {
+            const mass = parseFloat(document.getElementById('mass').value);
+            const volume = parseFloat(document.getElementById('volume').value);
+
+            if (isNaN(mass) || isNaN(volume) || volume <= 0) {
+                alert('請輸入有效的質量和體積。');
+                return;
+            }
+
+            const density = (mass / volume).toFixed(1);
+
+            const tableBody = document.getElementById('resultTable').querySelector('tbody');
+            count++;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${count}</td>
+                <td>${mass}</td>
+                <td>${volume}</td>
+                <td>${density}</td>
+                <td><button class="deleteBtn">刪除</button></td>
+            `;
+            tableBody.appendChild(row);
+            document.getElementById('mass').value = '';
+            document.getElementById('volume').value = '';
+
+            row.querySelector('.deleteBtn').addEventListener('click', function() {
+                tableBody.removeChild(row);
+                count--;
+                updateRowNumbers();
+            });
+        });
+
+        function updateRowNumbers() {
+            const rows = document.querySelectorAll('#resultTable tbody tr');
+            rows.forEach((row, index) => {
+                row.cells[0].innerText = index + 1;
+            });
+        }
+    </script>
+
+</body>
+</html>
