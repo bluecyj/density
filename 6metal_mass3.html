@@ -49,7 +49,7 @@
         }
         .footer {
             text-align: center;
-            margin-top: 470px;
+            margin-top: 420px;
             font-size: 14px;
         }
     </style>
@@ -57,15 +57,18 @@
 <body>
     <div id="info">
         <h1>🧱金屬塊的外觀大小與質量</h1>
-    
+        <img id="scaleImage" src="https://bluecyj.github.io/density/scale3.png" alt="Electronic Scale">
+        <div id="weightDisplay">0.0 g</div>
+        <div class="footer">
+            <p>本網頁由新北市立中正國中江逸傑老師製作</p>
+            <p>ccjhsntpc@gmail.com</p>
+        </div>
     </div>
-    <img id="scaleImage" src="https://bluecyj.github.io/density/scale3.png" alt="Electronic Scale">
-    <div id="weightDisplay">0.0 g</div>
-    <div id="scene-container"></div>
-    <div class="footer">
-        <p>本網頁由新北市立中正國中江逸傑老師製作</p>
-        <p>ccjhsntpc@gmail.com</p>
+    <div id="scene-container">
+
     </div>
+
+
     
     <script>
         let scene, camera, renderer;
