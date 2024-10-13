@@ -26,7 +26,7 @@
         }
         .category-box {
             position: absolute;
-            bottom: 90px;
+            bottom: 60px;
             width: 180px;
             height: 180px;
             border: 5px solid #00008B; /* 深藍色 */
@@ -40,17 +40,23 @@
         }
         .category-label {
             position: absolute;
-            bottom: 235px;
+            bottom: 245px;
             font-family: Arial, sans-serif;
             font-size: 22px; /* 放大字體 */
             font-weight: bold; /* 粗體 */
             color: #00008B; /* 深藍色 */
             margin-bottom: 10px; /* 與框的間距 */
         }
-        .footer {
+        #creator-info {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
-            margin-top: 500px;
-            font-size: 14px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: black;
+            z-index: 10;
         }
     </style>
 </head>
@@ -61,11 +67,10 @@
     <div id="category2" class="category-box"></div>
     <div class="category-label" style="left: calc(50% - 130px);">分類1</div>
     <div class="category-label" style="right: calc(50% - 130px);">分類2</div>
-    <div class="footer">
-        <p>本網頁由新北市立中正國中江逸傑老師製作</p>
-        <p>ccjhsntpc@gmail.com</p>
+    <div id="creator-info">
+        本網頁由新北市中正國中江逸傑老師製作<br>
+        ccjhsntpc@gmail.com
     </div>
-    
     <script>
         let scene, camera, renderer;
         let objects = [];

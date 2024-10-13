@@ -18,7 +18,7 @@
         }
         #weightDisplay {
             position: absolute;
-            bottom: 100px;
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%);
             background-color: #2f00ff;
@@ -33,7 +33,7 @@
         }
         #scaleImage {
             position: absolute;
-            bottom: 100px;
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%);
             width: 200px;
@@ -47,29 +47,30 @@
             height: 100%;
             z-index: 5;
         }
-        .footer {
+        #creator-info {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
-            margin-top: 420px;
-            font-size: 14px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: black;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
     <div id="info">
         <h1>🧱金屬塊的外觀大小與質量</h1>
-        <img id="scaleImage" src="https://bluecyj.github.io/density/scale3.png" alt="Electronic Scale">
-        <div id="weightDisplay">0.0 g</div>
-        <div class="footer">
-            <p>本網頁由新北市立中正國中江逸傑老師製作</p>
-            <p>ccjhsntpc@gmail.com</p>
-        </div>
     </div>
-    <div id="scene-container">
-
+    <img id="scaleImage" src="https://bluecyj.github.io/density/scale3.png" alt="Electronic Scale">
+    <div id="weightDisplay">0.0 g</div>
+    <div id="creator-info">
+        本網頁由新北市中正國中江逸傑老師製作<br>
+        ccjhsntpc@gmail.com
     </div>
-
-
-    
+    <div id="scene-container"></div>
     <script>
         let scene, camera, renderer;
         let objects = [];
