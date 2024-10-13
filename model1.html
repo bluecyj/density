@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物質的密度</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .image-container {
+            position: relative;
+            width: 256px;
+            height: 166px;
+        }
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: black;
+            border-radius: 50%;
+            cursor: move;
+            touch-action: none;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        button {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 256px; /* 固定按鈕寬度 */
+        }
+        .footer {
+            text-align: center;
+            font-family: "Microsoft JhengHei", sans-serif;
+            font-size: 12px;
+            color: black;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>物質的密度(不同物質，相同體積)</h1>
+    <div class="buttons-container">
+        <div class="button-group">
+            <button onclick="addDot('silver')">🌱產生1g物質(銀色圓柱)</button>
+            <button onclick="removeDot('silver')">♻刪除1g物質(銀色圓柱)</button>
+        </div>
+        <div class="button-group">
+            <button onclick="addDot('yellow')">🌱產生1g物質(黃褐色圓柱)</button>
+            <button onclick="removeDot('yellow')">♻刪除1g物質(黃褐色圓柱)</button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="image-container" id="silver">
+            <img src="https://bluecyj.github.io/density/silver.png" alt="Silver">
+        </div>
+        <div class="image-container" id="yellow">
+            <img src="https://bluecyj.github.io/density/yellow.png" alt="Yellow">
+        </div>
+    </div>
+    <div class="footer">
+        <p>本網頁由新北市立中正國中江逸傑老師製作</p>
+        <p>ccjhsntpc@gmail.com</p>
+    </div>
+
+    <script>
+        function addDot(containerId) {
+            const container = document.getElementById(containerId);
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            
+            const centerX = container.offsetWidth / 2;
+            const centerY = container.offsetHeight / 2;
+            const radius = Math.min(container.offsetWidth, container.offsetHeight) / 4;
+            
+            let newX, newY;
+            do {
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = Math.random() * radius;
+                newX = centerX + distance * Math.cos(angle) - 10;
+                newY = centerY + distance * Math.sin(angle) - 10;
+            } while (isOverlapping(container, newX, newY));
+            
+            dot.style.left = newX + 'px';
+            dot.style.top = newY + 'px';
+            container.appendChild(dot);
+            makeDraggable(dot);
+        }
+
+        function isOverlapping(container, x, y) {
+            const dots = container.getElementsByClassName('dot');
+            for (let i = 0; i < dots.length; i++) {
+                const rect = dots[i].getBoundingClientRect();
+                const dotX = rect.left - container.getBoundingClientRect().left;
+                const dotY = rect.top - container.getBoundingClientRect().top;
+                const distance = Math.sqrt(Math.pow(x - dotX, 2) + Math.pow(y - dotY, 2));
+                if (distance < 20) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function removeDot(containerId) {
+            const container = document.getElementById(containerId);
+            const dots = container.getElementsByClassName('dot');
+            if (dots.length > 0) {
+                container.removeChild(dots[dots.length - 1]);
+            }
+        }
+
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            element.onmousedown = dragMouseDown;
+            element.ontouchstart = dragTouchStart;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function dragTouchStart(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                pos3 = touch.clientX;
+                pos4 = touch.clientY;
+                document.ontouchend = closeDragElement;
+                document.ontouchmove = elementTouchDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                setElementPosition(element);
+            }
+
+            function elementTouchDrag(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                pos1 = pos3 - touch.clientX;
+                pos2 = pos4 - touch.clientY;
+                pos3 = touch.clientX;
+                pos4 = touch.clientY;
+                setElementPosition(element);
+            }
+
+            function setElementPosition(el) {
+                const container = el.parentElement;
+                let newTop = el.offsetTop - pos2;
+                let newLeft = el.offsetLeft - pos1;
+                
+                newTop = Math.max(0, Math.min(newTop, container.offsetHeight - el.offsetHeight));
+                newLeft = Math.max(0, Math.min(newLeft, container.offsetWidth - el.offsetWidth));
+                
+                el.style.top = newTop + "px";
+                el.style.left = newLeft + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+                document.ontouchend = null;
+                document.ontouchmove = null;
+            }
+        }
+    </script>
+</body>
+</html>

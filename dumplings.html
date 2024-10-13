@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水餃煮熟的過程</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        button {
+            font-size: 16px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .container {
+            width: 600px;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+        #pot {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .dumpling {
+            width: 84px;
+            height: 56px;
+            position: absolute;
+            bottom: 330px;
+            transition: transform 2s;
+        }
+        #dumpling1 { left: 129px; }
+        #dumpling2 { left: 218px; }
+        #dumpling3 { left: 307px; }
+        #dumpling4 { left: 396px; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-5px) rotate(2deg); }
+            75% { transform: translateY(5px) rotate(-2deg); }
+        }
+        .footer {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🥟水餃煮熟的過程</h1>
+    
+    <div class="buttons">
+        <button id="addDumplings">🥟投入水餃</button>
+        <button id="cookDumplings" disabled>👩🏼‍🍳煮熟水餃</button>
+        <button id="reset" disabled>🔙再煮一次</button>
+    </div>
+
+    <div class="container">
+        <img id="pot" src="https://bluecyj.github.io/density/pot2.png" alt="鍋子">
+        <img id="dumpling1" class="dumpling" src="https://bluecyj.github.io/density/dumplings.png" alt="水餃" style="display: none;">
+        <img id="dumpling2" class="dumpling" src="https://bluecyj.github.io/density/dumplings.png" alt="水餃" style="display: none;">
+        <img id="dumpling3" class="dumpling" src="https://bluecyj.github.io/density/dumplings.png" alt="水餃" style="display: none;">
+        <img id="dumpling4" class="dumpling" src="https://bluecyj.github.io/density/dumplings.png" alt="水餃" style="display: none;">
+    </div>
+    <div class="footer">
+        <p>本網頁由新北市立中正國中江逸傑老師製作</p>
+        <p>ccjhsntpc@gmail.com</p>
+    </div>
+    
+
+    <script>
+        const addDumplingsBtn = document.getElementById('addDumplings');
+        const cookDumplingsBtn = document.getElementById('cookDumplings');
+        const resetBtn = document.getElementById('reset');
+        const dumplings = document.querySelectorAll('.dumpling');
+
+        let isAnimating = false;
+
+        function disableAllButtons() {
+            addDumplingsBtn.disabled = true;
+            cookDumplingsBtn.disabled = true;
+            resetBtn.disabled = true;
+        }
+
+        function enableButtonsAfterAnimation(duration) {
+            isAnimating = true;
+            setTimeout(() => {
+                isAnimating = false;
+                cookDumplingsBtn.disabled = false;
+                resetBtn.disabled = false;
+            }, duration);
+        }
+
+        addDumplingsBtn.addEventListener('click', () => {
+            if (isAnimating) return;
+            disableAllButtons();
+            dumplings.forEach(dumpling => {
+                dumpling.style.display = 'block';
+                setTimeout(() => {
+                    dumpling.style.transform = 'translateY(170px)';
+                }, 10);
+            });
+            enableButtonsAfterAnimation(2000);
+        });
+
+        cookDumplingsBtn.addEventListener('click', () => {
+            if (isAnimating) return;
+            disableAllButtons();
+            const order = [1, 2, 0, 3];
+            order.forEach((index, i) => {
+                setTimeout(() => {
+                    const dumpling = dumplings[index];
+                    dumpling.style.transform = 'translateY(0)';
+                    setTimeout(() => {
+                        dumpling.style.animation = `float ${3 + Math.random()}s infinite ease-in-out`;
+                    }, 2000);
+                }, i * 100);
+            });
+            enableButtonsAfterAnimation(2000 + order.length * 500);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (isAnimating) return;
+            disableAllButtons();
+            dumplings.forEach(dumpling => {
+                dumpling.style.display = 'none';
+                dumpling.style.transform = 'translateY(0)';
+                dumpling.style.animation = 'none';
+            });
+            addDumplingsBtn.disabled = false;
+            isAnimating = false;
+        });
+    </script>
+</body>
+</html>

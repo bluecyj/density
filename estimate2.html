@@ -63,7 +63,7 @@
             top: -25px;
             left: 0;
             width: 1px;
-            height: 100px;
+            height: 150px;
             border-left: 1px dashed #333;
         }
         .pencil {
@@ -93,12 +93,19 @@
             cursor: move;
             touch-action: none;
         }
+        .footer {
+            text-align: center;
+            font-family: "Microsoft JhengHei", sans-serif;
+            font-size: 12px;
+            color: black;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>✏️鉛筆長度測量與估計值📏</h1>
     <div class="description">
-        你可以移動尺📏，也可以移動黃色鉛筆✏️，我們想量測黃色鉛筆的長度。請你將黃色鉛筆最左邊抵住尺0cm的刻度線，移動畫面中的紅色虛線，抵住黃色鉛筆尖端，記錄黃色鉛筆長度是多少公分。
+        下面是一把最小刻度1cm的尺，你可以移動尺📏，也可以移動黃色鉛筆✏️，我們想量測黃色鉛筆的長度。請你將黃色鉛筆最左邊抵住尺0cm的刻度線(黑色虛線)，移動畫面中的紅色虛線，抵住黃色鉛筆尖端，記錄黃色鉛筆長度是多少公分(cm)。
     </div>
     <div class="container">
         <div class="ruler" id="ruler">
@@ -110,7 +117,10 @@
         </div>
         <div class="red-line" id="redLine"></div>
     </div>
-
+    <div class="footer">
+        <p>本網頁由新北市立中正國中江逸傑老師製作</p>
+        <p>ccjhsntpc@gmail.com</p>
+    </div>
     <script>
         const ruler = document.getElementById('ruler');
         const rulerMarks = document.getElementById('rulerMarks');
@@ -140,9 +150,10 @@
         // 設置初始位置
         ruler.style.left = '50px';
         ruler.style.top = '100px';
-        pencil.style.left = '50px';
+        pencil.style.left = '100px';
         pencil.style.top = '200px';
-        redLine.style.left = '250px';
+        redLine.style.left = '570px';
+        redLine.style.top = '50px';
 
         // 移動功能
         function dragElement(element) {

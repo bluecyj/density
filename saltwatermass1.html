@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="zh-TW"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com; media-src 'self' data: blob: https://pfst.cf2.poecdn.net https://i.imgur.com https://wikimedia.org; frame-src 'self' https://www.youtube.com; upgrade-insecure-requests; block-all-mixed-content;">
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>液體(含量筒)質量與體積的關係</title>
@@ -83,14 +85,19 @@
         .button-row button {
             margin: 0 10px;
         }
+        .footer {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧂液體(含量筒)質量與體積的關係🍷</h1>
+        <h1>🧂液體(含量筒)質量與體積的關係🥛</h1>
         
         <div class="graph-settings">
-            <h2>圖表設置</h2>
+            <h2>📊圖表設置</h2>
             <div class="input-row">
                 <div class="input-group">
                     <label for="massUnit">質量單位長 (g)：</label>
@@ -111,11 +118,11 @@
                     <input type="number" id="volumeMax" value="100" min="1" step="1">
                 </div>
             </div>
-            <button onclick="updateGraph()">⚙️更新圖表</button>
+            <button onclick="updateGraph()">⚙️設置圖表</button>
         </div>
 
         <div class="input-section">
-            <h2>輸入數據</h2>
+            <h2>🖋️輸入數據</h2>
             <div class="input-row">
                 <div class="input-group">
                     <label for="materialSelect">液體種類：</label>
@@ -129,14 +136,14 @@
                 </div>
                 <div class="input-group">
                     <label for="mass">質量 (g)：</label>
-                    <input type="number" id="mass" step="0.1" required="">
+                    <input type="number" id="mass" step="0.1" required>
                 </div>
                 <div class="input-group">
                     <label for="volume">體積 (mL)：</label>
-                    <input type="number" id="volume" step="0.1" required="">
+                    <input type="number" id="volume" step="0.1" required>
                 </div>
             </div>
-            <button onclick="addData()">🔘添加數據</button>
+            <button onclick="addData()">📝增加數據</button>
         </div>
 
         <div id="dataTables"></div>
@@ -144,17 +151,18 @@
         <canvas id="graph" width="800" height="600"></canvas>
 
         <div class="button-row">
-            <button onclick="connectPoints()">將點連成一條線</button>
-            <button onclick="drawExtendedLine()">畫延長線</button>
-            <button onclick="removeLines()">刪除線</button>
+            <button onclick="connectPoints()">📏將點連成一條直線</button>
+            <button onclick="removeLines()">♻刪除線</button>
         </div>
+        <div class="footer">
+            <p>本網頁由新北市立中正國中江逸傑老師製作</p>
+            <p>ccjhsntpc@gmail.com</p>
+        </div> 
     </div>
-
     <script>
         const colors = ['red', 'blue', 'green', 'orange', 'purple'];
         let data = {};
         let lines = {};
-        let extendedLines = {};
 
         function addData() {
             const material = document.getElementById('materialSelect').value;
@@ -165,7 +173,7 @@
 
             if (!isNaN(mass) && !isNaN(volume)) {
                 if (mass > massMax || volume > volumeMax) {
-                    alert('你輸入的質量或體積超過設定範圍，請檢查後重新輸入');
+                    alert('你輸入的數據過設定範圍，請檢查後重新輸入');
                     return;
                 }
 
@@ -304,52 +312,40 @@
                     ctx.fill();
                 });
 
-                // Draw lines
+                // Draw regression line
                 if (lines[material]) {
-                    ctx.beginPath();
-                    ctx.moveTo(padding + lines[material][0].x * xScale, height - padding - lines[material][0].y * yScale);
-                    ctx.lineTo(padding + lines[material][1].x * xScale, height - padding - lines[material][1].y * yScale);
-                    ctx.stroke();
-                }
+                    const { slope, intercept } = lines[material];
+                    const startX = 0;
+                    const startY = intercept;
+                    const endX = Math.min(volumeMax, (massMax - intercept) / slope);
+                    const endY = slope * endX + intercept;
 
-                // Draw extended lines
-                if (extendedLines[material]) {
-                    ctx.setLineDash([5, 5]);
                     ctx.beginPath();
-                    ctx.moveTo(padding, height - padding - extendedLines[material].b * yScale);
-                    ctx.lineTo(padding + volumeMax * xScale, height - padding - (extendedLines[material].m * volumeMax + extendedLines[material].b) * yScale);
+                    ctx.moveTo(padding + startX * xScale, height - padding - startY * yScale);
+                    ctx.lineTo(padding + endX * xScale, height - padding - endY * yScale);
                     ctx.stroke();
-                    ctx.setLineDash([]);
                 }
             });
         }
 
         function connectPoints() {
-            Object.keys(data).forEach((material, index) => {
+            Object.keys(data).forEach((material) => {
                 if (data[material].length >= 2) {
-                    const sortedPoints = data[material].sort((a, b) => a.volume - b.volume);
-                    lines[material] = [
-                        { x: sortedPoints[0].volume, y: sortedPoints[0].mass },
-                        { x: sortedPoints[sortedPoints.length - 1].volume, y: sortedPoints[sortedPoints.length - 1].mass }
-                    ];
-                }
-            });
-            updateGraph();
-        }
+                    const points = data[material];
+                    const n = points.length;
+                    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
 
-        function drawExtendedLine() {
-            Object.keys(data).forEach((material, index) => {
-                if (data[material].length >= 2) {
-                    const sortedPoints = data[material].sort((a, b) => a.volume - b.volume);
-                    const x1 = sortedPoints[0].volume;
-                    const y1 = sortedPoints[0].mass;
-                    const x2 = sortedPoints[sortedPoints.length - 1].volume;
-                    const y2 = sortedPoints[sortedPoints.length - 1].mass;
+                    for (let i = 0; i < n; i++) {
+                        sumX += points[i].volume;
+                        sumY += points[i].mass;
+                        sumXY += points[i].volume * points[i].mass;
+                        sumX2 += points[i].volume * points[i].volume;
+                    }
 
-                    const m = (y2 - y1) / (x2 - x1);
-                    const b = y1 - m * x1;
+                    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+                    const intercept = (sumY - slope * sumX) / n;
 
-                    extendedLines[material] = { m, b };
+                    lines[material] = { slope, intercept };
                 }
             });
             updateGraph();
@@ -357,12 +353,10 @@
 
         function removeLines() {
             lines = {};
-            extendedLines = {};
             updateGraph();
         }
 
         updateGraph();
     </script>
-
-
-</body></html>
+</body>
+</html>

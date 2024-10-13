@@ -28,11 +28,11 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 0px;
         }
         .screen {
-            width: 200px;
-            height: 100px;
+            width: 160px;
+            height: 80px;
             background-color: #000;
             color: #0f0;
             border: 2px solid #333;
@@ -52,16 +52,16 @@
             margin-left: 20px;
         }
         .screen-label {
-            font-size: 16px;
-            margin-bottom: 5px;
+            font-size: 18px;/* 螢幕標籤的字體大小 */
+            margin-bottom: 5px; /* 螢幕標籤與數值間距 */
         }
         .screen-value {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 22px; /* 螢幕數值的字體大小 */
+            font-weight: bold; /* 螢幕數值的字體粗體 */
         }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 6px 20px; /* 按鈕高寬 */
+            font-size:16px; /* 增減體積按鈕字體大小 */
             cursor: pointer;
             white-space: nowrap;
         }
@@ -73,7 +73,7 @@
         .cylinder-container {
             display: flex;
             align-items: flex-end;
-            margin-left: 3em; /* 新增：向右移動3個單位長 */
+            margin-left: 1em; /* 新增：向右移動3個單位長 */
         }
         .cylinder {
             width: 100px;
@@ -94,7 +94,7 @@
             position: absolute;
             right: 0;
             height: 100%;
-            width: 20px;
+            width: 80px;/* 量筒每10mL刻度寬 */
             display: flex;
             flex-direction: column-reverse;
             justify-content: space-between;
@@ -108,10 +108,10 @@
             position: absolute;
             right: 0;
             height: 100%;
-            width: 20px;
+            width: 80px;/* 量筒刻度寬 */
         }
         .small-mark {
-            height: 1px;
+            height: 1px;/* 量筒刻度粗細 */
             background-color: black;
             position: absolute;
         }
@@ -120,12 +120,12 @@
             flex-direction: column;
             justify-content: space-between;
             height: 300px;
-            margin-left: 10px;
+            margin-left: -35px;/* 量筒數字水平位置 */
             font-size: 14px;
         }
         .scale-image {
             width: 384px;
-            margin-top: -50px;
+            margin-top: -70px;/* 電子秤圖片的高度位置，margin是邊界的意思 */
         }
         .volume-input {
             margin-bottom: 10px;
@@ -137,24 +137,35 @@
             padding: 5px;
             margin-right: 5px;
             text-align: center;
+            font-size: 18px; /* 增加輸入體積框的字體大小 */
         }
         .liquid-select {
-            margin-bottom: 10px;
+            margin-bottom: 10px; /* 間距 */
             display: flex;
             align-items: center;
         }
         .input-label {
             margin-right: 10px;
         }
+        #liquid-type {
+            font-size: 18px; /* 增加下拉式選單的字體大小 */
+        }
+        .footer {
+            text-align: center;
+            font-family: "Microsoft JhengHei", sans-serif;
+            font-size: 12px;
+            color: black;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>🧂液體的質量與體積🍷</h1>
+    <h1>🧂液體的質量與體積🥛</h1>
     <div class="experiment-container">
         <div class="top-controls">
             <div>
                 <div class="screen">
-                    <div class="screen-label">量筒內液體體積</div>
+                    <div class="screen-label">量筒內液體的體積</div>
                     <div class="screen-value" id="volume-value">10.0 mL</div>
                 </div>
                 <div class="screen">
@@ -164,7 +175,7 @@
             </div>
             <div class="buttons">
                 <div class="liquid-select">
-                    <label for="liquid-type" class="input-label">🧪選擇液體種類</label>
+                    <label for="liquid-type" class="input-label"><font size="4">🧪選擇液體種類</font></label>
                     <select id="liquid-type" onchange="updateLiquidDensity()">
                         <option value="1">水</option>
                         <option value="1.2" selected>食鹽水</option>
@@ -174,12 +185,12 @@
                     </select>
                 </div>
                 <div class="volume-input">
-                    <label for="volume-input" class="input-label">🎚️輸入液體體積(mL)</label>
+                    <label for="volume-input" class="input-label"><font size="4">🎚️輸入液體體積(mL)</font></label>
                     <input type="number" id="volume-input" min="0" max="50" step="0.1">
                     <button onclick="setVolume()">⚙️設定體積</button>
                 </div>
-                <button onclick="addWater()">👆增加液體體積</button>
-                <button onclick="removeWater()">👇減少液體體積</button>
+                <button onclick="addWater()">➕增加液體體積</button>
+                <button onclick="removeWater()">➖減少液體體積</button>
             </div>
         </div>
         <div class="container">
@@ -197,7 +208,7 @@
                     <div class="small-marks"></div>
                 </div>
                 <div class="scale-numbers">
-                    <div>50 mL</div>
+                    <div>50mL</div>
                     <div>40</div>
                     <div>30</div>
                     <div>20</div>
@@ -206,6 +217,10 @@
                 </div>
             </div>
             <img src="https://bluecyj.github.io/density/scale3.png" alt="電子秤" class="scale-image">
+        </div>
+        <div class="footer">
+            <p>本網頁由新北市立中正國中江逸傑老師製作</p>
+            <p>ccjhsntpc@gmail.com</p>
         </div>
     </div>
 

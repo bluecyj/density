@@ -89,6 +89,11 @@
         .button-row button {
             margin: 0 10px;
         }
+        .footer {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -96,7 +101,7 @@
         <h1>⚖️金屬塊質量與體積的關係🧪</h1>
         
         <div class="graph-settings">
-            <h2>圖表設置</h2>
+            <h2>📊圖表設置</h2>
             <div class="input-row">
                 <div class="input-group">
                     <label for="massUnit">質量單位長 (g)：</label>
@@ -121,7 +126,7 @@
         </div>
 
         <div class="input-section">
-            <h2>輸入數據</h2>
+            <h2>🖋️輸入數據</h2>
             <div class="input-row">
                 <div class="input-group">
                     <label for="materialSelect">金屬塊種類：</label>
@@ -142,7 +147,7 @@
                     <input type="number" id="volume" step="0.1" required>
                 </div>
             </div>
-            <button onclick="addData()">🔘添加數據</button>
+            <button onclick="addData()">📝添加數據</button>
         </div>
 
         <div id="dataTables"></div>
@@ -150,17 +155,20 @@
         <canvas id="graph" width="800" height="600"></canvas>
 
         <div class="button-row">
-            <button onclick="connectPoints()">將點連成一條線</button>
-            <button onclick="drawExtendedLine()">畫延長線</button>
-            <button onclick="removeLines()">刪除線</button>
+            <button onclick="connectPoints()">📏將點連成一條直線</button>
+            <button onclick="removeLines()">♻刪除線</button>
         </div>
+        <div class="footer">
+            <p>本網頁由新北市立中正國中江逸傑老師製作</p>
+            <p>ccjhsntpc@gmail.com</p>
+        </div>
+        
     </div>
 
     <script>
         const colors = ['red', 'blue', 'green', 'orange', 'purple'];
         let data = {};
         let lines = {};
-        let extendedLines = {};
 
         function addData() {
             const material = document.getElementById('materialSelect').value;
@@ -312,50 +320,33 @@
 
                 // Draw lines
                 if (lines[material]) {
-                    ctx.beginPath();
-                    ctx.moveTo(padding + lines[material][0].x * xScale, height - padding - lines[material][0].y * yScale);
-                    ctx.lineTo(padding + lines[material][1].x * xScale, height - padding - lines[material][1].y * yScale);
-                    ctx.stroke();
-                }
+                    const k = lines[material].k;
 
-                // Draw extended lines
-                if (extendedLines[material]) {
-                    ctx.setLineDash([5, 5]);
                     ctx.beginPath();
-                    ctx.moveTo(padding, height - padding - extendedLines[material].b * yScale);
-                    ctx.lineTo(padding + volumeMax * xScale, height - padding - (extendedLines[material].m * volumeMax + extendedLines[material].b) * yScale);
+                    ctx.moveTo(padding, height - padding);  // Start from (0,0)
+                    ctx.lineTo(padding + volumeMax * xScale, height - padding - k * volumeMax * yScale);
                     ctx.stroke();
-                    ctx.setLineDash([]);
                 }
             });
         }
 
         function connectPoints() {
             Object.keys(data).forEach((material, index) => {
-                if (data[material].length >= 2) {
-                    const sortedPoints = data[material].sort((a, b) => a.volume - b.volume);
-                    lines[material] = [
-                        { x: sortedPoints[0].volume, y: sortedPoints[0].mass },
-                        { x: sortedPoints[sortedPoints.length - 1].volume, y: sortedPoints[sortedPoints.length - 1].mass }
-                    ];
-                }
-            });
-            updateGraph();
-        }
-
-        function drawExtendedLine() {
-            Object.keys(data).forEach((material, index) => {
-                if (data[material].length >= 2) {
-                    const sortedPoints = data[material].sort((a, b) => a.volume - b.volume);
-                    const x1 = sortedPoints[0].volume;
-                    const y1 = sortedPoints[0].mass;
-                    const x2 = sortedPoints[sortedPoints.length - 1].volume;
-                    const y2 = sortedPoints[sortedPoints.length - 1].mass;
-
-                    const m = (y2 - y1) / (x2 - x1);
-                    const b = y1 - m * x1;
-
-                    extendedLines[material] = { m, b };
+                if (data[material].length >= 1) {
+                    const points = data[material].map(item => ({x: item.volume, y: item.mass}));
+                    points.push({x: 0, y: 0});  // Add (0,0) to the points
+                    
+                    const n = points.length;
+                    let sumXY = 0, sumX2 = 0;
+                    
+                    for (let i = 0; i < n; i++) {
+                        sumXY += points[i].x * points[i].y;
+                        sumX2 += points[i].x * points[i].x;
+                    }
+                    
+                    const k = sumXY / sumX2;
+                    
+                    lines[material] = { k };
                 }
             });
             updateGraph();
@@ -363,7 +354,6 @@
 
         function removeLines() {
             lines = {};
-            extendedLines = {};
             updateGraph();
         }
 

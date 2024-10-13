@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>金屬塊的外觀大小與質量</title>
+    <title>金屬塊分類</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body { margin: 0; overflow: hidden; }
@@ -16,29 +16,6 @@
             font-family: Arial, sans-serif;
             z-index: 10;
         }
-        #weightDisplay {
-            position: absolute;
-            bottom: 150px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #2f00ff;
-            color: #fbf7f7;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 20px;
-            font-weight: bold; /* 粗體 */
-            border: 1px solid #001000;
-            z-index: 10;
-        }
-        #scaleImage {
-            position: absolute;
-            bottom: 150px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            z-index: 1;
-        }
         #scene-container {
             position: absolute;
             top: 0;
@@ -47,21 +24,43 @@
             height: 100%;
             z-index: 5;
         }
+        .category-box {
+            position: absolute;
+            bottom: 90px;
+            width: 180px;
+            height: 180px;
+            border: 5px solid #00008B; /* 深藍色 */
+            z-index: 10;
+        }
+        #category1 {
+            left: calc(50% - 200px);
+        }
+        #category2 {
+            right: calc(50% - 200px);
+        }
+        .category-label {
+            position: absolute;
+            bottom: 235px;
+            font-family: Arial, sans-serif;
+            font-size: 22px; /* 放大字體 */
+            font-weight: bold; /* 粗體 */
+            color: #00008B; /* 深藍色 */
+            margin-bottom: 10px; /* 與框的間距 */
+        }
         .footer {
             text-align: center;
-            margin-top: 470px;
+            margin-top: 500px;
             font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div id="info">
-        <h1>🧱金屬塊的外觀大小與質量</h1>
-    
-    </div>
-    <img id="scaleImage" src="https://bluecyj.github.io/density/scale3.png" alt="Electronic Scale">
-    <div id="weightDisplay">0.0 g</div>
+    <div id="info"><h1>🧱金屬塊分類活動</h1></div>
     <div id="scene-container"></div>
+    <div id="category1" class="category-box"></div>
+    <div id="category2" class="category-box"></div>
+    <div class="category-label" style="left: calc(50% - 130px);">分類1</div>
+    <div class="category-label" style="right: calc(50% - 130px);">分類2</div>
     <div class="footer">
         <p>本網頁由新北市立中正國中江逸傑老師製作</p>
         <p>ccjhsntpc@gmail.com</p>
@@ -73,14 +72,13 @@
         let isDragging = false;
         let draggedObject = null;
         let dragOffset = new THREE.Vector3();
-        let weightDisplay, scaleImage;
 
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0x000000, 0); // 設置背景為透明
+            renderer.setClearColor(0x000000, 0);
             document.getElementById('scene-container').appendChild(renderer.domElement);
 
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -92,7 +90,6 @@
 
             camera.position.z = 20;
 
-            // 定義物體參數
             const objectsParams = [
                 { type: 'cube', size: 1.6, position: new THREE.Vector3(-7, 5, 0), weight: 12.2, color: 0xA0A0A0 },
                 { type: 'cylinder', radius: Math.sqrt(5.9 / (2 * Math.PI)), height: 5.9 / (Math.PI * Math.pow(Math.sqrt(5.9 / (2 * Math.PI)), 2)), position: new THREE.Vector3(-4, 5, 0), weight: 17.8, color: 0xA0A0A0 },
@@ -102,7 +99,6 @@
                 { type: 'cuboid', width: 2, height: 2, depth: 2, position: new THREE.Vector3(8, 5, 0), weight: 71.2, color: 0xD2B48C }
             ];
 
-            // 創建物體
             objectsParams.forEach((params, index) => {
                 let geometry, material, mesh;
 
@@ -124,7 +120,6 @@
                 scene.add(mesh);
                 objects.push({ mesh: mesh, weight: params.weight });
 
-                // 添加物體編號
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
                 canvas.width = 256;
@@ -142,9 +137,6 @@
                 sprite.position.set(0, -2, 0);
                 mesh.add(sprite);
             });
-
-            weightDisplay = document.getElementById('weightDisplay');
-            scaleImage = document.getElementById('scaleImage');
 
             window.addEventListener('mousedown', onPointerDown, false);
             window.addEventListener('mousemove', onPointerMove, false);
@@ -183,8 +175,6 @@
                 raycaster.ray.intersectPlane(plane, intersectionPoint);
 
                 draggedObject.position.copy(intersectionPoint.add(dragOffset));
-
-                checkScaleIntersection();
             }
         }
 
@@ -204,39 +194,6 @@
                 pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
             }
             return pointer;
-        }
-
-        function checkScaleIntersection() {
-            if (draggedObject) {
-                const scaleRect = scaleImage.getBoundingClientRect();
-                const objectPos = toScreenPosition(draggedObject, camera);
-
-                if (objectPos.x >= scaleRect.left && objectPos.x <= scaleRect.right &&
-                    objectPos.y >= scaleRect.top && objectPos.y <= scaleRect.bottom) {
-                    const weight = objects.find(obj => obj.mesh === draggedObject).weight;
-                    weightDisplay.textContent = weight.toFixed(1) + ' g';
-                } else {
-                    weightDisplay.textContent = '0.0 g';
-                }
-            }
-        }
-
-        function toScreenPosition(obj, camera) {
-            const vector = new THREE.Vector3();
-            const widthHalf = 0.5 * renderer.domElement.width;
-            const heightHalf = 0.5 * renderer.domElement.height;
-
-            obj.updateMatrixWorld();
-            vector.setFromMatrixPosition(obj.matrixWorld);
-            vector.project(camera);
-
-            vector.x = (vector.x * widthHalf) + widthHalf;
-            vector.y = - (vector.y * heightHalf) + heightHalf;
-
-            return { 
-                x: vector.x,
-                y: vector.y
-            };
         }
 
         function onWindowResize() {

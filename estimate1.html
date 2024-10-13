@@ -94,7 +94,7 @@
             position: absolute;
             top: 0;
             width: 1px;
-            height: 200px;
+            height: 250px;
             border-left: 2px dashed red;
             cursor: move;
             z-index: 2;
@@ -104,7 +104,7 @@
             position: absolute;
             top: 0;
             width: 1px;
-            height: 200px;
+            height: 250px;
             border-left: 2px dashed black;
             cursor: move;
             z-index: 2;
@@ -139,12 +139,19 @@
             font-size: 16px;
             cursor: pointer;
         }
+        .footer {
+            text-align: center;
+            font-family: "Microsoft JhengHei", sans-serif;
+            font-size: 12px;
+            color: black;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>物體長度測量與估計值</h1>
+    <h1>✏️物體長度測量與估計值</h1>
     <div class="description">
-        你可以移動所有的物體，黑色虛線與紅色虛線可以幫助你在量測長度時作為對齊的工具使用。我們的目標是想知道黃色鉛筆的長度，大約是幾個綠色鉛筆，或大約是幾個橡皮擦，你會如何記錄。
+        你可以移動所有的物體，黑色虛線與紅色虛線可以幫助你在量測長度時作為對齊的工具使用。我們的目標是想知道✏️黃色鉛筆的長度，大約是幾個綠色鉛筆，或大約是幾個橡皮擦，你會如何記錄。
     </div>
     <div class="button-container">
         <button id="showErasers">顯示橡皮擦</button>
@@ -179,8 +186,12 @@
         <div class="eraser" id="eraser4">
             <div class="eraser-label">橡皮擦(eraser)</div>
         </div>
-    </div>
 
+    </div>
+    <div class="footer">
+        <p>本網頁由新北市立中正國中江逸傑老師製作</p>
+        <p>ccjhsntpc@gmail.com</p>
+    </div>
     <script>
         const pencil = document.getElementById('pencil');
         const greenPencil1 = document.getElementById('greenPencil1');
@@ -201,14 +212,14 @@
         pencil.style.top = '200px';
         greenPencil1.style.left = '50px';
         greenPencil1.style.top = '150px';
-        greenPencil2.style.left = '300px';
+        greenPencil2.style.left = '310px';
         greenPencil2.style.top = '150px';
-        redLine.style.left = '250px';
-        blackLine.style.left = '100px';
+        redLine.style.left = '560px';
+        blackLine.style.left = '30px';
 
         // 設置橡皮擦初始位置
         const eraserWidth = 100;
-        const eraserSpacing = 3;
+        const eraserSpacing = 15;
         const startLeft = 50;
         const eraserTop = 50;
 
